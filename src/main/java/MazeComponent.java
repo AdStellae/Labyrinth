@@ -9,9 +9,9 @@ public class MazeComponent extends JComponent {
     protected int cellWidth;
     protected int cellHeight;
     DisjointSets DS = new DisjointSets(cells*cells);
-    Random random;
+
     /**
-     * Draw a maze of size w*h with c*c cells
+     * Draws a grid of size w*h with c*c cells
      * @param w
      * @param c
      * @param h
@@ -26,6 +26,10 @@ public class MazeComponent extends JComponent {
         setPreferredSize(new Dimension(width+1,height+1));  // Add 1 pixel for the border
     }
 
+    /**
+     * Draws the start and exit point, then draws the maze.
+     * @param g the <code>Graphics</code> object to protect
+     */
     public void paintComponent(Graphics g) {
         g.setColor(Color.yellow);                    // Yellow background
         g.fillRect(0, 0, width, height);
@@ -55,7 +59,6 @@ public class MazeComponent extends JComponent {
 
     }
 
-
     // Paints the interior of the cell at position x,y with colour c
     private void paintCell(int x, int y, Color c, Graphics g) {
         int xpos = x*cellWidth;    // Position in pixel coordinates
@@ -64,8 +67,13 @@ public class MazeComponent extends JComponent {
         g.fillRect(xpos+1, ypos+1, cellWidth-1, cellHeight-1);
     }
 
-
-    // Draw the wall w in cell (x,y) (0=left, 1=up, 2=right, 3=down)
+    /**
+     * Draw the wall w in cell (x,y) (0=left, 1=up, 2=right, 3=down)
+     * @param x
+     * @param y
+     * @param w
+     * @param g
+     */
     private void drawWall(int x, int y, int w, Graphics g) {
         int xpos = x*cellWidth;    // Position in pixel coordinates
         int ypos = y*cellHeight;
@@ -98,21 +106,20 @@ public class MazeComponent extends JComponent {
         int cell = getRandomCell();
         int xPos = getCellXPos(cell);
         int yPos = getCellYPos(cell);
-        int cellNumber = getCellNumber(xPos, yPos);
         int wall = getRandomWall(xPos, yPos);
-        getNextCell(wall, cellNumber);
+        getNextCell(wall, cell);
         drawWall(xPos, yPos, wall, g);
     }
 
     /**
-     * Returns a cell within the boundaries of the maze.
-     * TODO Find out how the fuck this even works at the moment.
+     * Returns a selected cell within the boundaries of the maze.
      * @return
      */
     private int getRandomCell(){
         Random rn = new Random();
-        int randCell = rn.nextInt(cells*cells);
-        System.out.println("randCell " + randCell);
+        int bound = cells*cells;
+        int randCell = rn.nextInt(bound);
+        System.out.println("Selected cell " + randCell);
         return randCell;
     }
 
@@ -122,7 +129,7 @@ public class MazeComponent extends JComponent {
      * @return
      */
     private int getCellXPos(int randCell) {
-        int randX = randCell/cells;
+        int randX = randCell%cells;
         System.out.println(randX + "x");
         return randX;
     }
@@ -133,22 +140,9 @@ public class MazeComponent extends JComponent {
      * @return
      */
     private int getCellYPos(int randCell){
-        int randY = randCell%cells;
+        int randY = randCell/cells;
         System.out.println(randY + "y");
         return randY;
-    }
-
-    /**
-     * Determines the actual cell number by multiplying the y-coordinate with the max amount of cells in a row and
-     * adding the x-coordinate.
-     * @param xPos
-     * @param yPos
-     * @return
-     */
-    private int getCellNumber(int xPos, int yPos) {
-        int cellNumber = yPos*cells+xPos;
-        System.out.println("Selected cell number: " + cellNumber);
-        return  cellNumber;
     }
 
     /**
