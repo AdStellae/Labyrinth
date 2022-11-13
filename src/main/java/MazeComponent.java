@@ -97,25 +97,9 @@ public class MazeComponent extends JComponent {
         System.out.println(xCoord + "x");
         System.out.println(yCoord + "y");
 
-        int wall = getRandomWall();
-        System.out.println("wall: " + wall);
-        //drawWall(1,1,2,g);
+        int wall = getRandomWall(xCoord, yCoord);
 
-        if ((xCoord == 0 && wall != 0) && (xCoord == cells-1 && wall != 2) && (yCoord == 0 && wall != 1) && (yCoord == cells-1 && wall != 3)){
-            drawWall(xCoord, yCoord, wall, g);
-        }
-        /*
-        else if (xCoord == cells-1 && wall != 2){
-            drawWall(xCoord, yCoord, wall, g);
-        }
-        else if (yCoord == 0 && wall != 1){
-            drawWall(xCoord, yCoord, wall, g);
-        }
-        else if (yCoord == cells-1 && wall != 3){
-            drawWall(xCoord, yCoord, wall, g);
-        }
-
-         */
+        drawWall(xCoord, yCoord, wall, g);
 
     }
 
@@ -132,9 +116,15 @@ public class MazeComponent extends JComponent {
         int randCell = rn.nextInt(cells*cells-1);
         return randCell;
     }
-    private int getRandomWall(){
+    private int getRandomWall(int xCoord, int yCoord){
         Random rn = new Random();
-        int randomWall = rn.nextInt(4);
-        return randomWall;
+        int wall = rn.nextInt(4);
+
+        while ((xCoord == 0 && wall == 0) || (xCoord == cells-1 && wall == 2) || (yCoord == 0 && wall == 1) || (yCoord == cells-1 && wall == 3)){
+            wall = rn.nextInt(4);
+        }
+
+        return wall;
     }
+
 }

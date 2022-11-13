@@ -4,7 +4,7 @@ public class Main {
     private static final int WIDTH = 800;  // Size of the window in pixels
     private static final int HEIGHT = 800;
 
-    static int cells=3;    // The size of the maze is cells*cells (default is 20*20)
+    static int cells=2;    // The size of the maze is cells*cells (default is 20*20)
 
     public static void main(String[] args) {
 
