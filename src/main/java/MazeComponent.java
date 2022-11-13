@@ -10,7 +10,12 @@ public class MazeComponent extends JComponent {
     protected int cellHeight;
     DisjointSets DS = new DisjointSets(cells*cells);
     Random random;
-    // Draw a maze of size w*h with c*c cells
+    /**
+     * Draw a maze of size w*h with c*c cells
+     * @param w
+     * @param c
+     * @param h
+     */
     MazeComponent(int w, int h, int c) {
         super();
         cells = c;                // Number of cells
@@ -42,7 +47,6 @@ public class MazeComponent extends JComponent {
 
         g.setColor(Color.yellow);                 // Use yellow lines to remove existing walls
         createMaze(cells, g);
-        System.out.println("after create maze");
     }
 
     private void createMaze (int c, Graphics g) {
@@ -66,9 +70,6 @@ public class MazeComponent extends JComponent {
         int xpos = x*cellWidth;    // Position in pixel coordinates
         int ypos = y*cellHeight;
 
-        System.out.println("in draw wall");
-
-
         switch(w){
             case (0):       // Wall to the left
                 g.drawLine(xpos, ypos+1, xpos, ypos+cellHeight-1);
@@ -88,43 +89,104 @@ public class MazeComponent extends JComponent {
                 break;
         }
     }
+
+    /**
+     * Removes a random wall inside the maze.
+     * @param g
+     */
     private void removeRandomWall(Graphics g) {
-        Random rn = new Random();
         int cell = getRandomCell();
-        int xCoord = getCellXPos(cell);
-        int yCoord = getCellYPos(cell);
-
-        System.out.println(xCoord + "x");
-        System.out.println(yCoord + "y");
-
-        int wall = getRandomWall(xCoord, yCoord);
-
-        drawWall(xCoord, yCoord, wall, g);
-
+        int xPos = getCellXPos(cell);
+        int yPos = getCellYPos(cell);
+        int cellNumber = getCellNumber(xPos, yPos);
+        int wall = getRandomWall(xPos, yPos);
+        getNextCell(wall, cellNumber);
+        drawWall(xPos, yPos, wall, g);
     }
 
-    private int getCellXPos(int randCell) {
-        int randX = randCell/cells;
-        return randX;
-    }
-    private int getCellYPos(int randCell){
-        int randY = randCell%cells;
-        return randY;
-    }
+    /**
+     * Returns a cell within the boundaries of the maze.
+     * TODO Find out how the fuck this even works at the moment.
+     * @return
+     */
     private int getRandomCell(){
         Random rn = new Random();
-        int randCell = rn.nextInt(cells*cells-1);
+        int randCell = rn.nextInt(cells*cells);
+        System.out.println("randCell " + randCell);
         return randCell;
     }
+
+    /**
+     * Returns the X-coordinate of the cell
+     * @param randCell
+     * @return
+     */
+    private int getCellXPos(int randCell) {
+        int randX = randCell/cells;
+        System.out.println(randX + "x");
+        return randX;
+    }
+
+    /**
+     * Returns the Y-coordinate of the cell
+     * @param randCell
+     * @return
+     */
+    private int getCellYPos(int randCell){
+        int randY = randCell%cells;
+        System.out.println(randY + "y");
+        return randY;
+    }
+
+    /**
+     * Determines the actual cell number by multiplying the y-coordinate with the max amount of cells in a row and
+     * adding the x-coordinate.
+     * @param xPos
+     * @param yPos
+     * @return
+     */
+    private int getCellNumber(int xPos, int yPos) {
+        int cellNumber = yPos*cells+xPos;
+        System.out.println("Selected cell number: " + cellNumber);
+        return  cellNumber;
+    }
+
+    /**
+     * Returns a wall that is not part of the border of the maze.
+     * @param xCoord
+     * @param yCoord
+     * @return
+     */
     private int getRandomWall(int xCoord, int yCoord){
         Random rn = new Random();
         int wall = rn.nextInt(4);
-
-        while ((xCoord == 0 && wall == 0) || (xCoord == cells-1 && wall == 2) || (yCoord == 0 && wall == 1) || (yCoord == cells-1 && wall == 3)){
+        while ((xCoord == 0 && wall == 0) || (xCoord == cells-1 && wall == 2)
+                || (yCoord == 0 && wall == 1) || (yCoord == cells-1 && wall == 3)){
             wall = rn.nextInt(4);
         }
-
+        System.out.println("Selected wall " + wall);
         return wall;
     }
 
+    /**
+     * Determines the cell on the other side of the wall that is selected by getRandomWall
+     * @param wall
+     * @param cell
+     * @return
+     */
+    private int getNextCell(int wall, int cell) {
+        int nextCell = 0;
+        if (wall == 0) {
+            nextCell = cell - 1; //The cell to the left.
+        } else if (wall == 2) {
+            nextCell = cell + 1; //The cell to the right.
+        } else if (wall == 1) {
+            nextCell = cell - cells; //The cell above.
+        } else if (wall == 3) {
+            nextCell = cell + cells; //The cell below.
+        }
+        System.out.println("Next cell " + nextCell);
+        return nextCell;
+
+    }
 }
