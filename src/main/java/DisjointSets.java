@@ -31,9 +31,6 @@ public class DisjointSets {
         if (S[y] <= S[x]) {
             S[y] = S[y] + S[x];
             S[x] = y;
-            System.out.println("after union: y:" + y + "  S[y] (value of index y in S): " + S[y] );
-            System.out.println("after union: x:" + x + "  S[x] (value of index x in S): " + S[x] );
-
         }
         else {
             S[x] = S[x] + S[y]; //otherwise x has a larger tree and will be the root

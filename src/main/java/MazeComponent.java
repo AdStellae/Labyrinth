@@ -11,9 +11,9 @@ public class MazeComponent extends JComponent {
     DisjointSets DS;
     /**
      * Draws a grid of size w*h with c*c cells
-     * @param w
-     * @param c
-     * @param h
+     * @param w - the width.
+     * @param c - the number of cells.
+     * @param h - the height.
      */
     MazeComponent(int w, int h, int c) {
         super();
@@ -53,26 +53,31 @@ public class MazeComponent extends JComponent {
         createMaze(cells, g);
     }
 
-    private void createMaze (int c, Graphics g) {
-        int arraySize = (cells*cells);
-        while (DS.getS()[DS.find(0)] != -arraySize) { //find (
+    /**
+     * Removes walls between cells until all cells are in one union.
+     * @param g
+     */
+    private void createMaze (int cells, Graphics g) {
+        while (DS.getS()[DS.find(0)] != -(cells*cells)) {
             int cell = getRandomCell();
             int xPos = getCellXPos(cell);
             int yPos = getCellYPos(cell);
             int wall = getRandomWall(xPos, yPos);
-            int nextCell = selectNextCell(cell, wall);
+            int nextCell = getNextCell(wall, cell);
             if (deterMineIfInUnion(cell, nextCell) == false) {
                 DS.union(DS.find(cell), DS.find(nextCell));
                 drawWall(xPos, yPos, wall, g);
-                //removeSelectedWall(xPos, yPos, wall, g);
             }
         }
-        //TODO Add code to finalize
-
-
     }
 
-    // Paints the interior of the cell at position x,y with colour c
+    /**
+     * Paints the interior of the cell at position x,y with colour c
+     * @param x - the x-coordinate.
+     * @param y - the y-coordinate.
+     * @param c - the colour.
+     * @param g
+     */
     private void paintCell(int x, int y, Color c, Graphics g) {
         int xpos = x*cellWidth;    // Position in pixel coordinates
         int ypos = y*cellHeight;
@@ -82,9 +87,9 @@ public class MazeComponent extends JComponent {
 
     /**
      * Draw the wall w in cell (x,y) (0=left, 1=up, 2=right, 3=down)
-     * @param x
-     * @param y
-     * @param w
+     * @param x - the x-coordinate.
+     * @param y - the y-coordinate.
+     * @param w - the wall.
      * @param g
      */
     private void drawWall(int x, int y, int w, Graphics g) {
@@ -94,34 +99,22 @@ public class MazeComponent extends JComponent {
         switch(w){
             case (0):       // Wall to the left
                 g.drawLine(xpos, ypos+1, xpos, ypos+cellHeight-1);
-                System.out.println("Left wall");
                 break;
             case (1):       // Wall at top
                 g.drawLine(xpos+1, ypos, xpos+cellWidth-1, ypos);
-                System.out.println("Top wall");
                 break;
             case (2):      // Wall to the right
                 g.drawLine(xpos+cellWidth, ypos+1, xpos+cellWidth, ypos+cellHeight-1);
-                System.out.println("Right wall");
                 break;
             case (3):      // Wall at bottom
                 g.drawLine(xpos+1, ypos+cellHeight, xpos+cellWidth-1, ypos+cellHeight);
-                System.out.println("Bottom wall");
                 break;
         }
     }
 
     /**
-     * Returns the selected wall between two cells.
-     */
-    public int selectNextCell(int cell, int wall) {
-        int nextCell = getNextCell(wall, cell);
-        return nextCell;
-    }
-
-    /**
      * Returns a selected cell within the boundaries of the maze.
-     * @return
+     * @return Returns the cell.
      */
     private int getRandomCell(){
         Random rn = new Random();
@@ -132,9 +125,9 @@ public class MazeComponent extends JComponent {
     }
 
     /**
-     * Returns the X-coordinate of the cell
-     * @param randCell
-     * @return
+     * Returns the X-coordinate of the cell.
+     * @param randCell - the selected cell.
+     * @return Returns the x-coordinate.
      */
     private int getCellXPos(int randCell) {
         int randX = randCell%cells;
@@ -143,9 +136,9 @@ public class MazeComponent extends JComponent {
     }
 
     /**
-     * Returns the Y-coordinate of the cell
-     * @param randCell
-     * @return
+     * Returns the Y-coordinate of the cell.
+     * @param randCell - the selected cell.
+     * @return Returns the y-coordinate.
      */
     private int getCellYPos(int randCell){
         int randY = randCell/cells;
@@ -155,15 +148,15 @@ public class MazeComponent extends JComponent {
 
     /**
      * Returns a wall that is not part of the border of the maze.
-     * @param xCoord
-     * @param yCoord
-     * @return
+     * @param xPos - the x-coordinate of the cell.
+     * @param yPos - the y-coordinate of the cell.
+     * @return Returns the selected wall.
      */
-    private int getRandomWall(int xCoord, int yCoord){
+    private int getRandomWall(int xPos, int yPos){
         Random rn = new Random();
         int wall = rn.nextInt(4);
-        while ((xCoord == 0 && wall == 0) || (xCoord == cells-1 && wall == 2)
-                || (yCoord == 0 && wall == 1) || (yCoord == cells-1 && wall == 3)){
+        while ((xPos == 0 && wall == 0) || (xPos == cells-1 && wall == 2)
+                || (yPos == 0 && wall == 1) || (yPos == cells-1 && wall == 3)){
             wall = rn.nextInt(4);
         }
         System.out.println("Selected wall: " + wall);
@@ -171,10 +164,10 @@ public class MazeComponent extends JComponent {
     }
 
     /**
-     * Determines the cell on the other side of the wall that is selected by getRandomWall
-     * @param wall
-     * @param cell
-     * @return
+     * Determines the cell on the other side of the wall that is selected by getRandomWall.
+     * @param wall - the selected wall.
+     * @param cell - the selected cell.
+     * @return Returns the adjacent cell.
      */
     private int getNextCell(int wall, int cell) {
         int nextCell = 0;
@@ -190,6 +183,13 @@ public class MazeComponent extends JComponent {
         System.out.println("Next cell: " + nextCell);
         return nextCell;
     }
+
+    /**
+     * Determines if the cell and the nextCell are in union.
+     * @param cell - the number of the cell.
+     * @param nextCell - the number of the selected adjacent cell.
+     * @return Returns true if they are in union, and false if they are not.
+     */
     private boolean deterMineIfInUnion(int cell, int nextCell) {
         if (DS.find(cell) == DS.find(nextCell)) {
             return true;
