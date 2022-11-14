@@ -8,8 +8,7 @@ public class MazeComponent extends JComponent {
     protected int cells;
     protected int cellWidth;
     protected int cellHeight;
-    DisjointSets DS = new DisjointSets(cells*cells);
-
+    DisjointSets DS;
     /**
      * Draws a grid of size w*h with c*c cells
      * @param w
@@ -24,6 +23,7 @@ public class MazeComponent extends JComponent {
         width =  c*cellWidth;     // Calculate exact dimensions of the component
         height = c*cellHeight;
         setPreferredSize(new Dimension(width+1,height+1));  // Add 1 pixel for the border
+        DS = new DisjointSets(cells*cells);
     }
 
     /**
@@ -54,8 +54,21 @@ public class MazeComponent extends JComponent {
     }
 
     private void createMaze (int c, Graphics g) {
+        int arraySize = (cells*cells);
+        while (DS.getS()[DS.find(0)] != -arraySize) { //find (
+            int cell = getRandomCell();
+            int xPos = getCellXPos(cell);
+            int yPos = getCellYPos(cell);
+            int wall = getRandomWall(xPos, yPos);
+            int nextCell = selectNextCell(cell, wall);
+            if (deterMineIfInUnion(cell, nextCell) == false) {
+                DS.union(DS.find(cell), DS.find(nextCell));
+                drawWall(xPos, yPos, wall, g);
+                //removeSelectedWall(xPos, yPos, wall, g);
+            }
+        }
         //TODO Add code to finalize
-        removeRandomWall(g);
+
 
     }
 
@@ -81,34 +94,29 @@ public class MazeComponent extends JComponent {
         switch(w){
             case (0):       // Wall to the left
                 g.drawLine(xpos, ypos+1, xpos, ypos+cellHeight-1);
-                System.out.println("Left");
+                System.out.println("Left wall");
                 break;
             case (1):       // Wall at top
                 g.drawLine(xpos+1, ypos, xpos+cellWidth-1, ypos);
-                System.out.println("Top");
+                System.out.println("Top wall");
                 break;
             case (2):      // Wall to the right
                 g.drawLine(xpos+cellWidth, ypos+1, xpos+cellWidth, ypos+cellHeight-1);
-                System.out.println("Right");
+                System.out.println("Right wall");
                 break;
             case (3):      // Wall at bottom
                 g.drawLine(xpos+1, ypos+cellHeight, xpos+cellWidth-1, ypos+cellHeight);
-                System.out.println("Bottom");
+                System.out.println("Bottom wall");
                 break;
         }
     }
 
     /**
-     * Removes a random wall inside the maze.
-     * @param g
+     * Returns the selected wall between two cells.
      */
-    private void removeRandomWall(Graphics g) {
-        int cell = getRandomCell();
-        int xPos = getCellXPos(cell);
-        int yPos = getCellYPos(cell);
-        int wall = getRandomWall(xPos, yPos);
-        getNextCell(wall, cell);
-        drawWall(xPos, yPos, wall, g);
+    public int selectNextCell(int cell, int wall) {
+        int nextCell = getNextCell(wall, cell);
+        return nextCell;
     }
 
     /**
@@ -119,7 +127,7 @@ public class MazeComponent extends JComponent {
         Random rn = new Random();
         int bound = cells*cells;
         int randCell = rn.nextInt(bound);
-        System.out.println("Selected cell " + randCell);
+        System.out.println("Selected cell: " + randCell);
         return randCell;
     }
 
@@ -158,7 +166,7 @@ public class MazeComponent extends JComponent {
                 || (yCoord == 0 && wall == 1) || (yCoord == cells-1 && wall == 3)){
             wall = rn.nextInt(4);
         }
-        System.out.println("Selected wall " + wall);
+        System.out.println("Selected wall: " + wall);
         return wall;
     }
 
@@ -179,8 +187,15 @@ public class MazeComponent extends JComponent {
         } else if (wall == 3) {
             nextCell = cell + cells; //The cell below.
         }
-        System.out.println("Next cell " + nextCell);
+        System.out.println("Next cell: " + nextCell);
         return nextCell;
-
+    }
+    private boolean deterMineIfInUnion(int cell, int nextCell) {
+        if (DS.find(cell) == DS.find(nextCell)) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
